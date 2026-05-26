@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>A2P Error Report — Infozillion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0e0f11;--surface:#16181c;--surface2:#1e2026;--border:#2a2d35;
+  --accent:#00d4aa;--accent2:#0099ff;--danger:#ff4d6a;
+  --text:#e8eaf0;--text-muted:#7a7f8e;--radius:10px;
+  --mono:'JetBrains Mono','Fira Code','Consolas',monospace;
+  --sans:'DM Sans','Segoe UI',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,170,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,170,.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+header{position:relative;z-index:10;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(14,15,17,.98) 0%,rgba(22,24,28,.95) 100%);backdrop-filter:blur(12px)}
+.header-inner{max-width:960px;margin:0 auto;padding:28px 32px 22px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.logo-tag{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;display:block;margin-bottom:6px}
+header h1{font-size:26px;font-weight:700;letter-spacing:-.5px;color:var(--text);line-height:1.1}
+.subtitle{font-family:var(--mono);font-size:11px;color:var(--text-muted);margin-top:5px}
+.header-meta{font-family:var(--mono);font-size:11px;color:var(--text-muted);text-align:right;white-space:nowrap}
+main{flex:1;position:relative;z-index:5;max-width:960px;margin:0 auto;width:100%;padding:40px 32px 60px;display:flex;flex-direction:column;gap:40px}
+.upload-zone{border:1.5px dashed var(--border);border-radius:14px;padding:52px 32px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s,transform .15s;background:var(--surface);position:relative;overflow:hidden}
+.upload-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,212,170,.06) 0%,transparent 65%);pointer-events:none}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:rgba(0,212,170,.04);transform:translateY(-1px)}
+.upload-icon{width:52px;height:52px;margin:0 auto 18px;color:var(--accent);opacity:.85}
+.upload-icon svg{width:100%;height:100%}
+.upload-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px}
+.upload-hint{font-size:12.5px;color:var(--text-muted);margin-bottom:24px;line-height:1.7}
+.upload-hint code{font-family:var(--mono);font-size:11px;background:var(--surface2);padding:2px 6px;border-radius:4px;color:var(--accent2);border:1px solid var(--border)}
+.btn-upload{display:inline-block;padding:10px 26px;border:1.5px solid var(--accent);border-radius:7px;font-family:var(--sans);font-size:13px;font-weight:600;color:var(--accent);background:transparent;cursor:pointer;letter-spacing:.04em;transition:background .2s,color .2s}
+.btn-upload:hover{background:var(--accent);color:#000}
+.file-list{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.file-item{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);animation:slideIn .2s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.file-badge{font-family:var(--mono);font-size:10px;font-weight:500;padding:3px 8px;border-radius:4px;text-transform:uppercase;letter-spacing:.06em;flex-shrink:0}
+.file-badge.mno{background:rgba(0,212,170,.15);color:var(--accent);border:1px solid rgba(0,212,170,.25)}
+.file-badge.iptsp{background:rgba(0,153,255,.15);color:var(--accent2);border:1px solid rgba(0,153,255,.25)}
+.file-badge.unknown{background:rgba(255,77,106,.1);color:var(--danger);border:1px solid rgba(255,77,106,.2)}
+.file-name{font-family:var(--mono);font-size:12px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-date{font-family:var(--mono);font-size:11px;color:var(--text-muted);flex-shrink:0}
+.file-remove{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:2px 4px;border-radius:4px;font-size:16px;line-height:1;transition:color .15s;flex-shrink:0}
+.file-remove:hover{color:var(--danger)}
+.action-row{display:flex;gap:12px;margin-top:20px}
+.btn-generate{flex:1;padding:13px 28px;background:var(--accent);color:#000;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:700;letter-spacing:.04em;cursor:pointer;transition:opacity .2s,transform .15s}
+.btn-generate:hover{opacity:.88;transform:translateY(-1px)}
+.btn-clear{padding:13px 20px;background:transparent;color:var(--text-muted);border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:500;cursor:pointer;transition:color .15s,border-color .15s}
+.btn-clear:hover{color:var(--danger);border-color:var(--danger)}
+.report-section{animation:fadeUp .3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.report-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.report-header h2{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.report-actions{display:flex;gap:10px}
+.btn-copy,.btn-export{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:7px;font-family:var(--sans);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .2s;letter-spacing:.03em}
+.btn-copy svg,.btn-export svg{width:15px;height:15px}
+.btn-copy{background:var(--surface2);border:1px solid var(--border);color:var(--text-muted)}
+.btn-copy:hover{border-color:var(--accent);color:var(--accent)}
+.btn-export{background:rgba(0,153,255,.12);border:1px solid rgba(0,153,255,.3);color:var(--accent2)}
+.btn-export:hover{background:var(--accent2);color:#000}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);background:var(--surface)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2);border-bottom:1px solid var(--border)}
+th{font-family:var(--mono);font-size:10.5px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);padding:14px 20px;text-align:right}
+th:first-child{text-align:left}
+td{font-family:var(--mono);font-size:13px;padding:12px 20px;text-align:right;border-bottom:1px solid rgba(42,45,53,.7);color:var(--text);transition:background .12s}
+td:first-child{text-align:left;color:var(--text-muted);letter-spacing:.02em}
+tbody tr:hover td{background:rgba(255,255,255,.025)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.has-data td:first-child{color:var(--text)}
+tbody tr.has-data td.mno-cell{color:var(--accent)}
+tbody tr.has-data td.iptsp-cell{color:var(--accent2)}
+tbody tr.has-data td.total-cell{color:#fff;font-weight:500}
+tbody tr.zero-row td{color:var(--border)}
+tfoot tr{background:var(--surface2);border-top:1.5px solid var(--border)}
+tfoot td{font-family:var(--mono);font-size:12.5px;font-weight:600;padding:14px 20px;text-align:right;border-bottom:none;color:var(--text)}
+tfoot td:first-child{text-align:left;letter-spacing:.08em;color:var(--text-muted);text-transform:uppercase;font-size:10px}
+tfoot td.mno-total{color:var(--accent)}
+tfoot td.iptsp-total{color:var(--accent2)}
+tfoot td.grand-total{color:#fff;font-size:14px}
+.parsed-files-info{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px}
+.info-chip{font-family:var(--mono);font-size:10.5px;padding:4px 10px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text-muted)}
+footer{position:relative;z-index:5;text-align:center;padding:20px;font-family:var(--mono);font-size:10.5px;color:var(--text-muted);border-top:1px solid var(--border);letter-spacing:.06em}
+.toast{position:fixed;bottom:32px;right:32px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 20px;font-size:13px;font-weight:500;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateY(80px);opacity:0;transition:transform .25s ease,opacity .25s ease;pointer-events:none;z-index:1000}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:var(--accent);color:var(--accent)}
+.toast.error{border-color:var(--danger);color:var(--danger)}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@media(max-width:600px){
+  .header-inner{flex-direction:column;align-items:flex-start;padding:20px 18px 16px}
+  main{padding:24px 16px 48px}
+  .upload-zone{padding:36px 20px}
+  .header-meta{display:none}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<header>
+  <div class="header-inner">
+    <div class="logo-block">
+      <span class="logo-tag">INFOZILLION TELETECH</span>
+      <h1>A2P Error Report</h1>
+      <p class="subtitle">Response Code ≠ 9000 · Date-wise Summary</p>
+    </div>
+    <div class="header-meta" id="headerMeta">—</div>
+  </div>
+</header>
+<main>
+  <section class="upload-section" id="uploadSection">
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 32V16M24 16L17 23M24 16L31 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 36C5.8 34.4 4 31.9 4 28C4 22.5 8.5 18 14 18C14.3 18 14.6 18 14.9 18.1C16.5 13.4 21 10 26.5 10C33.4 10 39 15.6 39 22.5C39 22.8 39 23.1 38.9 23.4C41.9 24.5 44 27.3 44 30.5C44 34.1 41.1 37 37.5 37" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="upload-title">Drop CSV files here</p>
+      <p class="upload-hint">Multiple files supported — <code>X9_M_YYYYMMDD_HH</code> &amp; <code>X9_I_YYYYMMDD_HH</code></p>
+      <label class="btn-upload">
+        Browse Files
+        <input type="file" id="fileInput" accept=".csv" multiple hidden/>
+      </label>
+    </div>
+    <div class="file-list" id="fileList"></div>
+    <div class="action-row" id="actionRow" style="display:none">
+      <button class="btn-generate" id="generateBtn">Generate Report</button>
+      <button class="btn-clear" id="clearBtn">Clear All</button>
+    </div>
+  </section>
+  <section class="report-section" id="reportSection" style="display:none">
+    <div class="report-header">
+      <h2>Summary Report</h2>
+      <div class="report-actions">
+        <button class="btn-copy" id="copyBtn">
+          <svg viewBox="0 0 20 20" fill="none"><rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 7V5a1.5 1.5 0 00-1.5-1.5H5A1.5 1.5 0 003.5 5v6.5A1.5 1.5 0 005 13h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Copy
+        </button>
+        <button class="btn-export" id="exportBtn">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-3-3M10 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 15v1a1 1 0 001 1h12a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Export CSV
+        </button>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table id="reportTable">
+        <thead><tr><th>DATE</th><th>MNO</th><th>IPTSP</th><th>TOTAL</th></tr></thead>
+        <tbody id="reportBody"></tbody>
+        <tfoot id="reportFoot"></tfoot>
+      </table>
+    </div>
+    <div class="parsed-files-info" id="parsedInfo"></div>
+  </section>
+</main>
+<footer><span>Infozillion Teletech BD Ltd · Service Assurance</span></footer>
+<div class="toast" id="toast"></div>
+<script>
+const fileInput=document.getElementById('fileInput'),uploadZone=document.getElementById('uploadZone'),fileListEl=document.getElementById('fileList'),actionRow=document.getElementById('actionRow'),generateBtn=document.getElementById('generateBtn'),clearBtn=document.getElementById('clearBtn'),reportSection=document.getElementById('reportSection'),reportBody=document.getElementById('reportBody'),reportFoot=document.getElementById('reportFoot'),exportBtn=document.getElementById('exportBtn'),copyBtn=document.getElementById('copyBtn'),parsedInfo=document.getElementById('parsedInfo'),headerMeta=document.getElementById('headerMeta'),toast=document.getElementById('toast');
+let files=[];
+function parseFilename(name){const base=name.replace(/\.csv$/i,'');const match=base.match(/^X9_(M|I)_(\d{8})_(\d{2})$/i);if(!match)return null;const typeChar=match[1].toUpperCase(),raw=match[2],hour=match[3];const date=`${raw.slice(0,4)}-${raw.slice(4,6)}-${raw.slice(6,8)}`;return{date,type:typeChar==='M'?'MNO':'IPTSP',hour};}
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function formatDate(d){const[y,m,day]=d.split('-');return`${parseInt(day)}-${MONTHS[parseInt(m)-1]}-${y.slice(2)}`;}
+function parseCSV(text){const lines=text.split(/\r?\n/).filter(l=>l.trim());if(lines.length<2)return{headers:[],rows:[]};function splitLine(line){const result=[];let cur='',inQ=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){inQ=!inQ;continue;}if(ch===','&&!inQ){result.push(cur.trim());cur='';continue;}cur+=ch;}result.push(cur.trim());return result;}const headers=splitLine(lines[0]);const rows=lines.slice(1).map(l=>splitLine(l));return{headers,rows};}
+function countErrors(text){const{headers,rows}=parseCSV(text);const idx=headers.indexOf('a2pResponseCode');if(idx===-1)return{count:0,error:'Column a2pResponseCode not found'};let count=0;for(const row of rows){const val=row[idx];if(val!==undefined&&val!==''&&String(val).trim()!=='9000')count++;}return{count,error:null};}
+function renderFileList(){fileListEl.innerHTML='';files.forEach((f,i)=>{const item=document.createElement('div');item.className='file-item';const bc=f.type==='MNO'?'mno':f.type==='IPTSP'?'iptsp':'unknown';item.innerHTML=`<span class="file-badge ${bc}">${f.type||'?'}</span><span class="file-name">${f.file.name}</span><span class="file-date">${f.date?formatDate(f.date):'—'}${f.hour?' · '+f.hour+':00':''}</span><button class="file-remove" data-index="${i}">×</button>`;fileListEl.appendChild(item);});fileListEl.querySelectorAll('.file-remove').forEach(btn=>btn.addEventListener('click',()=>{files.splice(parseInt(btn.dataset.index),1);renderFileList();updateActionRow();}));}
+function updateActionRow(){actionRow.style.display=files.length>0?'flex':'none';headerMeta.textContent=files.length>0?`${files.length} file${files.length>1?'s':''} loaded`:'—';}
+function addFiles(newFiles){for(const f of newFiles){if(files.find(x=>x.file.name===f.name))continue;const p=parseFilename(f.name);files.push({file:f,date:p?p.date:null,type:p?p.type:'UNKNOWN',hour:p?p.hour:null});}renderFileList();updateActionRow();}
+generateBtn.addEventListener('click',async()=>{if(!files.length)return;generateBtn.textContent='Processing…';generateBtn.disabled=true;const dateMap={},chips=[];for(const f of files){const text=await readFile(f.file);const{count,error}=countErrors(text);if(error){showToast(`${f.file.name}: ${error}`,'error');continue;}if(!f.date){showToast(`Filename not recognized: ${f.file.name}`,'error');continue;}if(!dateMap[f.date])dateMap[f.date]={mno:0,iptsp:0};if(f.type==='MNO')dateMap[f.date].mno+=count;if(f.type==='IPTSP')dateMap[f.date].iptsp+=count;chips.push({label:`${f.file.name} → ${count.toLocaleString()} errors`});}generateBtn.textContent='Generate Report';generateBtn.disabled=false;if(!Object.keys(dateMap).length){showToast('No valid data.','error');return;}renderReport(dateMap,chips);});
+function renderReport(dateMap,chips){reportBody.innerHTML='';reportFoot.innerHTML='';parsedInfo.innerHTML='';const dates=Object.keys(dateMap).sort();let tMno=0,tIptsp=0;for(const date of dates){const{mno,iptsp}=dateMap[date];const total=mno+iptsp;tMno+=mno;tIptsp+=iptsp;const tr=document.createElement('tr');tr.className=total>0?'has-data':'zero-row';tr.innerHTML=`<td>${formatDate(date)}</td><td class="mno-cell">${mno>0?mno.toLocaleString():'—'}</td><td class="iptsp-cell">${iptsp>0?iptsp.toLocaleString():'—'}</td><td class="total-cell">${total>0?total.toLocaleString():'0'}</td>`;reportBody.appendChild(tr);}const grand=tMno+tIptsp;reportFoot.innerHTML=`<tr><td>GRAND TOTAL</td><td class="mno-total">${tMno.toLocaleString()}</td><td class="iptsp-total">${tIptsp.toLocaleString()}</td><td class="grand-total">${grand.toLocaleString()}</td></tr>`;chips.forEach(c=>{const d=document.createElement('div');d.className='info-chip';d.textContent=c.label;parsedInfo.appendChild(d);});reportSection.style.display='block';reportSection.scrollIntoView({behavior:'smooth',block:'start'});headerMeta.textContent=`${dates.length} dates · ${grand.toLocaleString()} total errors`;showToast('Report generated!','success');}
+exportBtn.addEventListener('click',()=>{const rows=reportBody.querySelectorAll('tr');let csv='DATE,MNO,IPTSP,TOTAL\n';rows.forEach(tr=>{csv+=Array.from(tr.querySelectorAll('td')).map(td=>{const v=td.textContent.trim().replace(/,/g,'');return v==='—'?'0':v;}).join(',')+'\n';});const ft=reportFoot.querySelectorAll('td');if(ft.length)csv+=Array.from(ft).map(td=>td.textContent.trim().replace(/,/g,'')).join(',')+'\n';const blob=new Blob([csv],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`A2P_Error_Report_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);showToast('CSV exported!','success');});
+copyBtn.addEventListener('click',()=>{const rows=reportBody.querySelectorAll('tr');let text='DATE\t\tMNO\t\tIPTSP\t\tTOTAL\n';rows.forEach(tr=>{text+=Array.from(tr.querySelectorAll('td')).map(td=>td.textContent.trim()).join('\t\t')+'\n';});navigator.clipboard.writeText(text).then(()=>showToast('Copied!','success'));});
+clearBtn.addEventListener('click',()=>{files=[];fileInput.value='';renderFileList();updateActionRow();reportSection.style.display='none';headerMeta.textContent='—';});
+fileInput.addEventListener('change',e=>addFiles(Array.from(e.target.files)));
+uploadZone.addEventListener('click',e=>{if(!e.target.closest('label'))fileInput.click();});
+uploadZone.addEventListener('dragover',e=>{e.preventDefault();uploadZone.classList.add('drag-over');});
+uploadZone.addEventListener('dragleave',()=>uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop',e=>{e.preventDefault();uploadZone.classList.remove('drag-over');addFiles(Array.from(e.dataTransfer.files).filter(f=>f.name.endsWith('.csv')));});
+function readFile(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=()=>rej(new Error('Read failed'));r.readAsText(file);});}
+let toastTimer;
+function showToast(msg,type=''){toast.textContent=msg;toast.className=`toast show ${type}`;clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.className='toast',3000);}
+</script>
+</body>
+</html>
