@@ -1,97 +1,148 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>A2P Error Report — Infozillion</title>
-  <link rel="stylesheet" href="css/style.css" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A2P Error Report — Infozillion</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#0e0f11;color:#e8eaf0;min-height:100vh;display:flex;flex-direction:column}
+header{border-bottom:1px solid #2a2d35;background:#16181c;padding:24px 32px}
+.logo-tag{font-family:Consolas,'Courier New',monospace;font-size:10px;letter-spacing:.18em;color:#00d4aa;text-transform:uppercase;display:block;margin-bottom:6px}
+header h1{font-size:24px;font-weight:700;color:#e8eaf0}
+.subtitle{font-family:Consolas,'Courier New',monospace;font-size:11px;color:#7a7f8e;margin-top:4px}
+main{flex:1;max-width:900px;margin:0 auto;width:100%;padding:36px 32px 60px;display:flex;flex-direction:column;gap:32px}
+.upload-zone{border:1.5px dashed #2a2d35;border-radius:12px;padding:48px 32px;text-align:center;cursor:pointer;background:#16181c;transition:border-color .2s,background .2s}
+.upload-zone:hover,.upload-zone.drag-over{border-color:#00d4aa;background:rgba(0,212,170,.04)}
+.upload-icon{width:48px;height:48px;margin:0 auto 16px;color:#00d4aa}
+.upload-icon svg{width:100%;height:100%}
+.upload-title{font-size:16px;font-weight:600;color:#e8eaf0;margin-bottom:8px}
+.upload-hint{font-size:12px;color:#7a7f8e;margin-bottom:22px;line-height:1.7}
+.upload-hint code{font-family:Consolas,'Courier New',monospace;font-size:11px;background:#1e2026;padding:2px 6px;border-radius:4px;color:#0099ff;border:1px solid #2a2d35}
+.btn-upload{display:inline-block;padding:9px 24px;border:1.5px solid #00d4aa;border-radius:6px;font-size:13px;font-weight:600;color:#00d4aa;background:transparent;cursor:pointer;transition:background .2s,color .2s}
+.btn-upload:hover{background:#00d4aa;color:#000}
+.file-list{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.file-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#1e2026;border:1px solid #2a2d35;border-radius:8px}
+.file-badge{font-family:Consolas,'Courier New',monospace;font-size:10px;font-weight:500;padding:3px 8px;border-radius:4px;text-transform:uppercase;flex-shrink:0}
+.file-badge.mno{background:rgba(0,212,170,.15);color:#00d4aa;border:1px solid rgba(0,212,170,.25)}
+.file-badge.iptsp{background:rgba(0,153,255,.15);color:#0099ff;border:1px solid rgba(0,153,255,.25)}
+.file-badge.unknown{background:rgba(255,77,106,.1);color:#ff4d6a;border:1px solid rgba(255,77,106,.2)}
+.file-name{font-family:Consolas,'Courier New',monospace;font-size:12px;color:#e8eaf0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-date{font-family:Consolas,'Courier New',monospace;font-size:11px;color:#7a7f8e;flex-shrink:0}
+.file-remove{background:none;border:none;color:#7a7f8e;cursor:pointer;font-size:18px;line-height:1;padding:0 4px;transition:color .15s}
+.file-remove:hover{color:#ff4d6a}
+.action-row{display:flex;gap:10px;margin-top:16px}
+.btn-generate{flex:1;padding:12px;background:#00d4aa;color:#000;border:none;border-radius:7px;font-size:14px;font-weight:700;cursor:pointer;transition:opacity .2s}
+.btn-generate:hover{opacity:.85}
+.btn-generate:disabled{opacity:.5;cursor:not-allowed}
+.btn-clear{padding:12px 18px;background:transparent;color:#7a7f8e;border:1.5px solid #2a2d35;border-radius:7px;font-size:13px;font-weight:500;cursor:pointer;transition:color .15s,border-color .15s}
+.btn-clear:hover{color:#ff4d6a;border-color:#ff4d6a}
+.report-section{display:none}
+.report-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.report-header h2{font-size:17px;font-weight:700;color:#e8eaf0}
+.report-actions{display:flex;gap:8px}
+.btn-copy,.btn-export{display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-copy{background:#1e2026;border:1px solid #2a2d35;color:#7a7f8e}
+.btn-copy:hover{border-color:#00d4aa;color:#00d4aa}
+.btn-export{background:rgba(0,153,255,.12);border:1px solid rgba(0,153,255,.3);color:#0099ff}
+.btn-export:hover{background:#0099ff;color:#000}
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #2a2d35;background:#16181c}
+table{width:100%;border-collapse:collapse}
+thead tr{background:#1e2026;border-bottom:1px solid #2a2d35}
+th{font-family:Consolas,'Courier New',monospace;font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:#7a7f8e;padding:13px 20px;text-align:right}
+th:first-child{text-align:left}
+td{font-family:Consolas,'Courier New',monospace;font-size:13px;padding:11px 20px;text-align:right;border-bottom:1px solid #1e2026;color:#e8eaf0}
+td:first-child{text-align:left;color:#7a7f8e}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.has-data td:first-child{color:#e8eaf0}
+tbody tr.has-data td.mno-cell{color:#00d4aa}
+tbody tr.has-data td.iptsp-cell{color:#0099ff}
+tbody tr.has-data td.total-cell{color:#fff;font-weight:500}
+tbody tr.zero-row td{color:#2a2d35}
+tfoot tr{background:#1e2026;border-top:1.5px solid #2a2d35}
+tfoot td{font-family:Consolas,'Courier New',monospace;font-size:12px;font-weight:600;padding:13px 20px;text-align:right;color:#e8eaf0}
+tfoot td:first-child{text-align:left;color:#7a7f8e;text-transform:uppercase;font-size:10px;letter-spacing:.1em}
+tfoot td.mno-total{color:#00d4aa}
+tfoot td.iptsp-total{color:#0099ff}
+tfoot td.grand-total{color:#fff;font-size:14px}
+.info-chips{margin-top:14px;display:flex;flex-wrap:wrap;gap:7px}
+.info-chip{font-family:Consolas,'Courier New',monospace;font-size:10px;padding:4px 10px;border-radius:4px;border:1px solid #2a2d35;background:#1e2026;color:#7a7f8e}
+footer{text-align:center;padding:18px;font-family:Consolas,'Courier New',monospace;font-size:10px;color:#7a7f8e;border-top:1px solid #2a2d35;letter-spacing:.06em}
+.toast{position:fixed;bottom:28px;right:28px;background:#1e2026;border:1px solid #2a2d35;border-radius:7px;padding:11px 18px;font-size:13px;font-weight:500;color:#e8eaf0;box-shadow:0 6px 24px rgba(0,0,0,.5);transform:translateY(60px);opacity:0;transition:transform .25s,opacity .25s;pointer-events:none;z-index:999}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:#00d4aa;color:#00d4aa}
+.toast.error{border-color:#ff4d6a;color:#ff4d6a}
+</style>
 </head>
 <body>
-
-  <div class="bg-grid"></div>
-
-  <header>
-    <div class="header-inner">
-      <div class="logo-block">
-        <span class="logo-tag">INFOZILLION TELETECH</span>
-        <h1>A2P Error Report</h1>
-        <p class="subtitle">Response Code ≠ 9000 · Date-wise Summary</p>
+<header>
+  <span class="logo-tag">Infozillion Teletech BD Ltd</span>
+  <h1>A2P Error Report</h1>
+  <p class="subtitle">Response Code &ne; 9000 &middot; Date-wise Summary</p>
+</header>
+<main>
+  <section id="uploadSection">
+    <div class="upload-zone" id="uploadZone">
+      <div class="upload-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M24 32V16M24 16L17 23M24 16L31 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 36C5.8 34.4 4 31.9 4 28C4 22.5 8.5 18 14 18C14.3 18 14.6 18 14.9 18.1C16.5 13.4 21 10 26.5 10C33.4 10 39 15.6 39 22.5C39 22.8 39 23.1 38.9 23.4C41.9 24.5 44 27.3 44 30.5C44 34.1 41.1 37 37.5 37" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
       </div>
-      <div class="header-meta" id="headerMeta">—</div>
+      <p class="upload-title">Drop CSV files here</p>
+      <p class="upload-hint">Multiple files supported &mdash; <code>X9_M_YYYYMMDD_HH</code> &amp; <code>X9_I_YYYYMMDD_HH</code></p>
+      <label class="btn-upload">Browse Files<input type="file" id="fileInput" accept=".csv" multiple hidden></label>
     </div>
-  </header>
-
-  <main>
-
-    <!-- Upload Zone -->
-    <section class="upload-section" id="uploadSection">
-      <div class="upload-zone" id="uploadZone">
-        <div class="upload-icon">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M24 32V16M24 16L17 23M24 16L31 23" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M8 36C5.8 34.4 4 31.9 4 28C4 22.5 8.5 18 14 18C14.3 18 14.6 18 14.9 18.1C16.5 13.4 21 10 26.5 10C33.4 10 39 15.6 39 22.5C39 22.8 39 23.1 38.9 23.4C41.9 24.5 44 27.3 44 30.5C44 34.1 41.1 37 37.5 37" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
-        </div>
-        <p class="upload-title">Drop CSV files here</p>
-        <p class="upload-hint">Multiple files supported — <code>X9_M_YYYYMMDD_HH</code> &amp; <code>X9_I_YYYYMMDD_HH</code></p>
-        <label class="btn-upload">
-          Browse Files
-          <input type="file" id="fileInput" accept=".csv" multiple hidden />
-        </label>
+    <div class="file-list" id="fileList"></div>
+    <div class="action-row" id="actionRow" style="display:none">
+      <button class="btn-generate" id="generateBtn">Generate Report</button>
+      <button class="btn-clear" id="clearBtn">Clear All</button>
+    </div>
+  </section>
+  <section class="report-section" id="reportSection">
+    <div class="report-header">
+      <h2>Summary Report</h2>
+      <div class="report-actions">
+        <button class="btn-copy" id="copyBtn">&#x2398; Copy</button>
+        <button class="btn-export" id="exportBtn">&#x2193; Export CSV</button>
       </div>
-
-      <div class="file-list" id="fileList"></div>
-
-      <div class="action-row" id="actionRow" style="display:none">
-        <button class="btn-generate" id="generateBtn">Generate Report</button>
-        <button class="btn-clear" id="clearBtn">Clear All</button>
-      </div>
-    </section>
-
-    <!-- Report Output -->
-    <section class="report-section" id="reportSection" style="display:none">
-
-      <div class="report-header">
-        <h2>Summary Report</h2>
-        <div class="report-actions">
-          <button class="btn-copy" id="copyBtn" title="Copy table as text">
-            <svg viewBox="0 0 20 20" fill="none"><rect x="7" y="7" width="10" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 7V5a1.5 1.5 0 00-1.5-1.5H5A1.5 1.5 0 003.5 5v6.5A1.5 1.5 0 005 13h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            Copy
-          </button>
-          <button class="btn-export" id="exportBtn">
-            <svg viewBox="0 0 20 20" fill="none"><path d="M10 3v10M10 13l-3-3M10 13l3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 15v1a1 1 0 001 1h12a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            Export CSV
-          </button>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table id="reportTable">
-          <thead>
-            <tr>
-              <th>DATE</th>
-              <th>MNO</th>
-              <th>IPTSP</th>
-              <th>TOTAL</th>
-            </tr>
-          </thead>
-          <tbody id="reportBody"></tbody>
-          <tfoot id="reportFoot"></tfoot>
-        </table>
-      </div>
-
-      <div class="parsed-files-info" id="parsedInfo"></div>
-
-    </section>
-
-  </main>
-
-  <footer>
-    <span>Infozillion Teletech BD Ltd · Service Assurance</span><span style="margin-left:18px;opacity:.45">© 2026 Najmaz Sakib</span>
-  </footer>
-
-  <div class="toast" id="toast"></div>
-
-  <script src="js/app.js"></script>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>DATE</th><th>MNO</th><th>IPTSP</th><th>TOTAL</th></tr></thead>
+        <tbody id="reportBody"></tbody>
+        <tfoot id="reportFoot"></tfoot>
+      </table>
+    </div>
+    <div class="info-chips" id="parsedInfo"></div>
+  </section>
+</main>
+<footer>Infozillion Teletech BD Ltd &middot; Service Assurance &nbsp;&nbsp;&copy; 2026 Najmaz Sakib</footer>
+<div class="toast" id="toast"></div>
+<script>
+var fileInput=document.getElementById('fileInput'),uploadZone=document.getElementById('uploadZone'),fileListEl=document.getElementById('fileList'),actionRow=document.getElementById('actionRow'),generateBtn=document.getElementById('generateBtn'),clearBtn=document.getElementById('clearBtn'),reportSection=document.getElementById('reportSection'),reportBody=document.getElementById('reportBody'),reportFoot=document.getElementById('reportFoot'),exportBtn=document.getElementById('exportBtn'),copyBtn=document.getElementById('copyBtn'),parsedInfo=document.getElementById('parsedInfo'),toast=document.getElementById('toast');
+var files=[];
+var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function parseFilename(name){var base=name.replace(/\.csv$/i,'');var m=base.match(/^X9_(M|I)_(\d{8})_(\d{2})$/i);if(!m)return null;var raw=m[2];return{date:raw.slice(0,4)+'-'+raw.slice(4,6)+'-'+raw.slice(6,8),type:m[1].toUpperCase()==='M'?'MNO':'IPTSP',hour:m[3]};}
+function fmtDate(d){var p=d.split('-');return parseInt(p[2])+'-'+MONTHS[parseInt(p[1])-1]+'-'+p[0].slice(2);}
+function parseCSV(text){var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});if(lines.length<2)return{headers:[],rows:[]};function split(line){var res=[],cur='',q=false;for(var i=0;i<line.length;i++){var c=line[i];if(c==='"'){q=!q;continue;}if(c===','&&!q){res.push(cur.trim());cur='';continue;}cur+=c;}res.push(cur.trim());return res;}return{headers:split(lines[0]),rows:lines.slice(1).map(split)};}
+function countErrors(text){var p=parseCSV(text),idx=p.headers.indexOf('a2pResponseCode');if(idx===-1)return{count:0,error:'Column not found'};var n=0;p.rows.forEach(function(r){var v=r[idx];if(v!==undefined&&v!==''&&String(v).trim()!=='9000')n++;});return{count:n,error:null};}
+function renderFiles(){fileListEl.innerHTML='';files.forEach(function(f,i){var d=document.createElement('div');d.className='file-item';var bc=f.type==='MNO'?'mno':f.type==='IPTSP'?'iptsp':'unknown';d.innerHTML='<span class="file-badge '+bc+'">'+f.type+'</span><span class="file-name">'+f.file.name+'</span><span class="file-date">'+(f.date?fmtDate(f.date):'?')+(f.hour?' &middot; '+f.hour+':00':'')+'</span><button class="file-remove" data-i="'+i+'">&times;</button>';fileListEl.appendChild(d);});fileListEl.querySelectorAll('.file-remove').forEach(function(b){b.onclick=function(){files.splice(parseInt(b.dataset.i),1);renderFiles();updateRow();};});}
+function updateRow(){actionRow.style.display=files.length?'flex':'none';}
+function addFiles(list){list.forEach(function(f){if(!files.find(function(x){return x.file.name===f.name;})){var p=parseFilename(f.name);files.push({file:f,date:p?p.date:null,type:p?p.type:'UNKNOWN',hour:p?p.hour:null});}});renderFiles();updateRow();}
+generateBtn.onclick=async function(){if(!files.length)return;generateBtn.textContent='Processing...';generateBtn.disabled=true;var map={},chips=[];for(var i=0;i<files.length;i++){var f=files[i];var text=await readFile(f.file);var r=countErrors(text);if(r.error){showToast(f.file.name+': '+r.error,'error');continue;}if(!f.date){showToast('Bad filename: '+f.file.name,'error');continue;}if(!map[f.date])map[f.date]={mno:0,iptsp:0};if(f.type==='MNO')map[f.date].mno+=r.count;if(f.type==='IPTSP')map[f.date].iptsp+=r.count;chips.push(f.file.name+' \u2192 '+r.count.toLocaleString()+' errors');}generateBtn.textContent='Generate Report';generateBtn.disabled=false;if(!Object.keys(map).length){showToast('No valid data','error');return;}renderReport(map,chips);};
+function renderReport(map,chips){reportBody.innerHTML='';reportFoot.innerHTML='';parsedInfo.innerHTML='';var dates=Object.keys(map).sort(),tm=0,ti=0;dates.forEach(function(d){var v=map[d],tot=v.mno+v.iptsp;tm+=v.mno;ti+=v.iptsp;var tr=document.createElement('tr');tr.className=tot>0?'has-data':'zero-row';tr.innerHTML='<td>'+fmtDate(d)+'</td><td class="mno-cell">'+(v.mno>0?v.mno.toLocaleString():'&#x2014;')+'</td><td class="iptsp-cell">'+(v.iptsp>0?v.iptsp.toLocaleString():'&#x2014;')+'</td><td class="total-cell">'+(tot>0?tot.toLocaleString():'0')+'</td>';reportBody.appendChild(tr);});var g=tm+ti;reportFoot.innerHTML='<tr><td>Grand Total</td><td class="mno-total">'+tm.toLocaleString()+'</td><td class="iptsp-total">'+ti.toLocaleString()+'</td><td class="grand-total">'+g.toLocaleString()+'</td></tr>';chips.forEach(function(c){var x=document.createElement('div');x.className='info-chip';x.textContent=c;parsedInfo.appendChild(x);});reportSection.style.display='block';reportSection.scrollIntoView({behavior:'smooth'});showToast('Report generated!','success');}
+exportBtn.onclick=function(){var rows=reportBody.querySelectorAll('tr'),csv='DATE,MNO,IPTSP,TOTAL\n';rows.forEach(function(tr){csv+=Array.from(tr.querySelectorAll('td')).map(function(td){var v=td.textContent.trim().replace(/,/g,'').replace('—','0');return v;}).join(',')+'\n';});var ft=reportFoot.querySelectorAll('td');if(ft.length)csv+=Array.from(ft).map(function(td){return td.textContent.trim().replace(/,/g,'');}).join(',')+'\n';var b=new Blob([csv],{type:'text/csv'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='A2P_Error_Report_'+new Date().toISOString().slice(0,10)+'.csv';a.click();URL.revokeObjectURL(u);showToast('Exported!','success');};
+copyBtn.onclick=function(){var rows=reportBody.querySelectorAll('tr'),t='DATE\tMNO\tIPTSP\tTOTAL\n';rows.forEach(function(tr){t+=Array.from(tr.querySelectorAll('td')).map(function(td){return td.textContent.trim();}).join('\t')+'\n';});navigator.clipboard.writeText(t).then(function(){showToast('Copied!','success');});};
+clearBtn.onclick=function(){files=[];fileInput.value='';renderFiles();updateRow();reportSection.style.display='none';};
+fileInput.onchange=function(e){addFiles(Array.from(e.target.files));};
+uploadZone.onclick=function(e){if(!e.target.closest('label'))fileInput.click();};
+uploadZone.ondragover=function(e){e.preventDefault();uploadZone.classList.add('drag-over');};
+uploadZone.ondragleave=function(){uploadZone.classList.remove('drag-over');};
+uploadZone.ondrop=function(e){e.preventDefault();uploadZone.classList.remove('drag-over');addFiles(Array.from(e.dataTransfer.files).filter(function(f){return f.name.endsWith('.csv');}));};
+function readFile(f){return new Promise(function(res,rej){var r=new FileReader();r.onload=function(e){res(e.target.result);};r.onerror=function(){rej(new Error('fail'));};r.readAsText(f);});}
+var tt;function showToast(msg,type){toast.textContent=msg;toast.className='toast show '+(type||'');clearTimeout(tt);tt=setTimeout(function(){toast.className='toast';},3000);}
+</script>
 </body>
 </html>
